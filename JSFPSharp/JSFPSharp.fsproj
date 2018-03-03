@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Parser.fs" />
+    <Compile Include="ProgramSemantics.fs" />
+    <Compile Include="WP.fs" />
+    <Compile Include="TransformExpression.fs" />
+    <Compile Include="Clauses.fs" />
+    <Compile Include="ClausalPolynomialForm.fs" />
+    <Compile Include="Comparisons.fs" />
+    <Compile Include="Simplify.fs" />
+    <Compile Include="ClausalNormalForm.fs" />
+    <Compile Include="Prover.fs" />
+    <Compile Include="JSFPSharp.fs" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="/Users/leonid/projects/JSFPGrammar/JSFPGrammar/JSFPGrammar.csproj" />
+  </ItemGroup>
+  <Import Project="..\.paket\Paket.Restore.targets" />
+</Project>

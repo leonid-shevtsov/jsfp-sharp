@@ -1,0 +1,9 @@
+source https://www.nuget.org/api/v2
+
+nuget Antlr4.Runtime
+nuget FSharp.Core
+
+group Build
+source https://www.nuget.org/api/v2
+
+nuget FAKE
