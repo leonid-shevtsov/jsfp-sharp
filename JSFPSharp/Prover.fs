@@ -8,8 +8,7 @@ open ClausalNormalForm
 
 type ProverResult = Proved | Disproved | FailedToProve
 
-let evaluationMethodVariableLimit = -1
-
+let evaluationMethodVariableLimit = 20
 let resolutionMethodIterationLimit = 1000
 
 let rec predicateTerms predicate =
@@ -77,7 +76,6 @@ let conjunctLength (y1, n1) =
     Set.count(y1) + Set.count(n1)
 
 let rec resolutionMethodLoop conjuncts iteration = 
-    printf "%A\n" conjuncts
     if iteration > resolutionMethodIterationLimit
     then
         FailedToProve
@@ -89,7 +87,6 @@ let rec resolutionMethodLoop conjuncts iteration =
             |> List.sortBy conjunctLength
         match newConjuncts with
         | bestNewConjunct :: _  ->
-            printf "Best = %A\n" bestNewConjunct
             if conjunctLength(bestNewConjunct) = 0
             then
                 Proved
@@ -100,13 +97,10 @@ let rec resolutionMethodLoop conjuncts iteration =
 
 let resolutionMethod statement = 
     let clauses = clausalNormalForm statement
-    if List.length(clauses) = 1
-    then
-        clauses |> List.head |> trivialSolution
-    else
-        resolutionMethodLoop clauses 0
-
-
+    match clauses with
+    | [ singleClause ] -> trivialSolution singleClause
+    | _ -> resolutionMethodLoop clauses 0
+        
 let prover facts hypothesis = 
     let counterHypothesis = Not(hypothesis)
 
