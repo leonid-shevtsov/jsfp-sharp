@@ -156,6 +156,8 @@ let comparisonImplication lside ((ox, x), (oy, y)) =
     | (Less, Greater) when x > y -> Binary(Not(tx), Implies, ty)
     | (Greater, Equal) when x >= y -> Binary(tx, Implies, Not(ty))
     | (Greater, Equal) when x < y -> Binary(Not(tx), Implies, Not(ty))
+    | (Less, Equal) when x <= y -> Binary(tx, Implies, Not(ty))
+    | (Less, Equal) when x > y -> Binary(Not(tx), Implies, Not(ty))
     | (Equal, Equal) -> Binary(tx, Implies, Not(ty))
     | (Equal, Greater) when x > y -> Binary(tx, Implies, ty)
     | (Equal, Greater) when x <= y -> Binary(tx, Implies, Not(ty))

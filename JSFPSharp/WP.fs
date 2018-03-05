@@ -42,41 +42,29 @@ let branchWP commandWP branchCondition thenCommand elseCommand postcondition =
     let elsePrecondition = Binary(Not(branchCondition), Implies, elsePostcondition)
     Binary(thenPrecondition, And, elsePrecondition)
 
-let loopWP commandWP invariant boundFunction loopCondition body postcondition =
+let randomBoundVarName () = 
     let random = new System.Random()
-    let boundVar = random.Next(1000000) |> sprintf "bound_%6x" 
-    let loopContinuationCondition = 
-        Binary(
-            // For as long as the loop goes
-            Binary(loopCondition, And, invariant),
-            Implies, 
-            Binary(
-                // The invariant is maintained after an iteration
-                commandWP invariant body,
-                And, 
-                Binary(
-                    // The bound function is greater than 0
-                    Comparison(boundFunction, Greater, Number(0.0)),
-                    And,
-                    // The bound function reduces after each iteration
-                    // (in other words, the value of BoundFunction evaluated after the body,
-                    // is less than boundVar captured before the body)
-                    commandWP (Comparison(boundFunction, Less, Identifier(boundVar))) body
-                    |> replaceIdentifierInPredicate boundVar boundFunction
-                )
-            )
-        )
-    let loopTerminationCondition =
-        Binary(
-            // Once the loop is terminated
-            Binary(Not(loopCondition), And, invariant),
-            Implies,
-            postcondition
-        )
+    random.Next(1000000) |> sprintf "bound_%6x" 
+
+let loopWP commandWP invariant boundFunction loopCondition body postcondition =
+    let boundVar = randomBoundVarName()
+    let invariantIsMaintained = commandWP invariant body
+    let boundFunctionIsPositive = Comparison(boundFunction, Greater, Number(0.0))
+    let boundFunctionDecreases = 
+        commandWP (Comparison(boundFunction, Less, Identifier(boundVar))) body
+        |> replaceIdentifierInPredicate boundVar boundFunction
     Binary(
         invariant,
         And,
-        Binary(loopContinuationCondition, And, loopTerminationCondition)
+        Binary(
+            Binary(
+                loopCondition, 
+                Implies, 
+                Binary(invariantIsMaintained, And, Binary(boundFunctionIsPositive, And, boundFunctionDecreases))
+            ),
+            And,
+            Binary(Not(loopCondition), Implies, postcondition)
+        )
     )
 
 let rec commandWP postcondition command =

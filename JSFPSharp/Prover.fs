@@ -30,7 +30,9 @@ let rec evaluationMethodInner statement identifiers bindings =
         let result = evaluateConstantsInPredicate statement
         match result with
         | Boolean(false) -> Proved // Refuted counter-hypothesis -> so hypothesis is proved
-        | Boolean(true) -> Disproved
+        | Boolean(true) -> 
+            printf "Counterexample: %A\n" bindings
+            Disproved
         | _ -> raise(Exception("should not happen"))
     | head :: tail ->
         if (tryReplacingIdentifier statement head true tail bindings) = Proved && 

@@ -1,39 +1,39 @@
 module JSFPSharp
 
+open System.IO
 open Parser
 open ProgramSemantics
 open WP
 open Comparisons
 open Prover
-
-let test = antlrParse("""
-    
-        /* PRE: z==1;
-        POST: y==1 */
-
-    if (z>0) {
-      x=z;
-    } else {
-      x=w+1
-    };
-
-    y=x;
-
-        
-        """).Value
+open Simplify
 
 [<EntryPoint>]
-let main _ =
-    let factualizedPredicate = 
-      test 
-      |> castProgram 
-      |> programCorrectnessHypothesis 
-      |> factualizeComparisons
-    
-    let proveResult = prover factualizedPredicate.comparisonAxioms factualizedPredicate.predicate
+let main argv =
+    let pathToSource = Array.head argv
+    let source = File.ReadAllText pathToSource
+    let parseTree = antlrParse(source)
+    match parseTree with
+    | Success(parseTree) -> 
+        let programCorrectnessHypothesis =
+            parseTree 
+            |> castProgram 
+            |> programCorrectnessHypothesis 
 
-    printf "%A" proveResult
-    
-    // let testPredicate = Binary(Boolean(true), Implies, Binary(Term("x"), And, Comparison(Number(0.0), Less, Number(1.0))))
-    // simplifyPredicate testPredicate |> printfn "%A" 
-    0 // return an integer exit code
+        printf "Program correctness hypothesis: %A\n" programCorrectnessHypothesis
+
+        let factualizedPredicate = 
+            programCorrectnessHypothesis
+            |> factualizeComparisons
+
+        printf "With factualized comparisons: %A\n" (simplifyPredicate factualizedPredicate.predicate)
+        printf "Comparison axioms: %A\n" factualizedPredicate.comparisonAxioms
+        
+        let proveResult = prover factualizedPredicate.comparisonAxioms factualizedPredicate.predicate
+
+        printf "%A\n" proveResult
+        
+        0 
+    | Error -> 
+        printf "Failed to parse\n"
+        1
